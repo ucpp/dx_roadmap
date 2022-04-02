@@ -22,6 +22,12 @@ namespace engine
     ComPtr<ID3D12CommandAllocator> createCommandAllocator(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type);
     ComPtr<ID3D12GraphicsCommandList> createCommandList(ComPtr<ID3D12Device2> device, ComPtr<ID3D12CommandAllocator> command_allocator, D3D12_COMMAND_LIST_TYPE type);
 
+    ComPtr<ID3D12Fence> createFence(ComPtr<ID3D12Device2> device);
+    HANDLE createEventHandle();
+    uint64 signal(ComPtr<ID3D12CommandQueue> command_queue, ComPtr<ID3D12Fence> fence, uint64& fence_value);
+    void waitForFenceValue(ComPtr<ID3D12Fence> fence, uint64 fence_value, HANDLE fence_event, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
+    void flush(ComPtr<ID3D12CommandQueue> command_queue, ComPtr<ID3D12Fence> fence, uint64& fence_value, HANDLE fence_event);
+
     void updateRenderTargetViews(ComPtr<ID3D12Device2> device, ComPtr<IDXGISwapChain4> swap_chain, ComPtr<ID3D12DescriptorHeap> descriptor_heap);
 
   private:

@@ -212,4 +212,46 @@ namespace engine
 
     return command_list;
   }
+
+  ComPtr<ID3D12Fence> DeviceResources::createFence(ComPtr<ID3D12Device2> device)
+  {
+    ComPtr<ID3D12Fence> fence;
+
+    ThrowIfFailed(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+
+    return fence;
+  }
+
+  HANDLE DeviceResources::createEventHandle()
+  {
+    HANDLE fence_event;
+
+    fence_event = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+    assert(fence_event && "Failed to create fence event.");
+
+    return fence_event;
+  }
+
+  uint64 DeviceResources::signal(ComPtr<ID3D12CommandQueue> command_queue, ComPtr<ID3D12Fence> fence, uint64& fence_value)
+  {
+    uint64 fence_value_for_signal = ++fence_value;
+    ThrowIfFailed(command_queue->Signal(fence.Get(), fence_value_for_signal));
+
+    return fence_value_for_signal;
+  }
+
+  void DeviceResources::waitForFenceValue(ComPtr<ID3D12Fence> fence, uint64 fence_value, HANDLE fence_event, std::chrono::milliseconds duration)
+  {
+    if (fence->GetCompletedValue() < fence_value)
+    {
+      ThrowIfFailed(fence->SetEventOnCompletion(fence_value, fence_event));
+      ::WaitForSingleObject(fence_event, static_cast<DWORD>(duration.count()));
+    }
+  }
+
+  void DeviceResources::flush(ComPtr<ID3D12CommandQueue> command_queue, ComPtr<ID3D12Fence> fence, uint64& fence_value, HANDLE fence_event)
+  {
+    uint64 fenceValueForSignal = signal(command_queue, fence, fence_value);
+    waitForFenceValue(fence, fenceValueForSignal, fence_event);
+  }
 }
