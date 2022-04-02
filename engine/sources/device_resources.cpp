@@ -202,4 +202,14 @@ namespace engine
 
     return command_allocator;
   }
+
+  ComPtr<ID3D12GraphicsCommandList> DeviceResources::createCommandList(ComPtr<ID3D12Device2> device, ComPtr<ID3D12CommandAllocator> command_allocator, D3D12_COMMAND_LIST_TYPE type)
+  {
+    ComPtr<ID3D12GraphicsCommandList> command_list;
+    ThrowIfFailed(device->CreateCommandList(0, type, command_allocator.Get(), nullptr, IID_PPV_ARGS(&command_list)));
+
+    ThrowIfFailed(command_list->Close());
+
+    return command_list;
+  }
 }
