@@ -176,4 +176,22 @@ namespace engine
     return descriptor_heap;
   }
 
+  void DeviceResources::updateRenderTargetViews(ComPtr<ID3D12Device2> device, ComPtr<IDXGISwapChain4> swap_chain, ComPtr<ID3D12DescriptorHeap> descriptor_heap)
+  {
+    auto rtv_descriptor_size = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_handle(descriptor_heap->GetCPUDescriptorHandleForHeapStart());
+
+    for (int i = 0; i < num_frames; ++i)
+    {
+      ComPtr<ID3D12Resource> back_buffer;
+      ThrowIfFailed(swap_chain->GetBuffer(i, IID_PPV_ARGS(&back_buffer)));
+
+      device->CreateRenderTargetView(back_buffer.Get(), nullptr, rtv_handle);
+
+      back_buffers[i] = back_buffer;
+
+      rtv_handle.Offset(rtv_descriptor_size);
+    }
+  }
 }

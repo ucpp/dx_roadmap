@@ -20,6 +20,8 @@ namespace engine
     ComPtr<IDXGISwapChain4> createSwapChain(HWND hwnd, ComPtr<ID3D12CommandQueue> command_queue, uint32 width, uint32 height, uint32 buffer_count);
     ComPtr<ID3D12DescriptorHeap> createDescriptorHeap(ComPtr<ID3D12Device2> device, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32 num_descriptors);
 
+    void updateRenderTargetViews(ComPtr<ID3D12Device2> device, ComPtr<IDXGISwapChain4> swap_chain, ComPtr<ID3D12DescriptorHeap> descriptor_heap);
+
   private:
     bool is_initialized;
 
