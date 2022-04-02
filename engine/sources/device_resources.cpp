@@ -194,4 +194,12 @@ namespace engine
       rtv_handle.Offset(rtv_descriptor_size);
     }
   }
+
+  ComPtr<ID3D12CommandAllocator> DeviceResources::createCommandAllocator(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type)
+  {
+    ComPtr<ID3D12CommandAllocator> command_allocator;
+    ThrowIfFailed(device->CreateCommandAllocator(type, IID_PPV_ARGS(&command_allocator)));
+
+    return command_allocator;
+  }
 }
