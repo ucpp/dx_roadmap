@@ -9,6 +9,8 @@ namespace engine
   public:
 
   private:
+    void update();
+
     static LRESULT CALLBACK wndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 
   private:
