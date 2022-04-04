@@ -38,6 +38,29 @@ namespace engine
     }
   }
 
+  void DeviceResources::resize(uint32 width, uint32 height)
+  {
+    flush();
+
+    for (int frame = 0; frame < DeviceResources::num_frames; ++frame)
+    {
+      back_buffers[frame].Reset();
+      frame_fence_values[frame] = frame_fence_values[current_back_buffer_index];
+    }
+
+    DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
+    ThrowIfFailed(swap_chain->GetDesc(&swap_chain_desc));
+    ThrowIfFailed(swap_chain->ResizeBuffers(num_frames, width, height, swap_chain_desc.BufferDesc.Format, swap_chain_desc.Flags));
+
+    current_back_buffer_index = swap_chain->GetCurrentBackBufferIndex();
+    updateRenderTargetViews(device, swap_chain, RTV_descriptor_heap);
+  }
+
+  void DeviceResources::flush()
+  {
+    flush(command_queue, fence, fence_value, fence_event);
+  }
+
   void DeviceResources::enableDebugLayer()
   {
 #if defined(_DEBUG)

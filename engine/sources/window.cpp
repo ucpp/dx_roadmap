@@ -2,6 +2,23 @@
 
 namespace engine
 {
+  Window::Window(std::wstring name, uint32 width, uint32 height) 
+    : title(name)
+    , width(width)
+    , height(height)
+    , use_wrap(false)
+    , fullscreen(false)
+    , window_rect()
+    , hwnd(nullptr) {}
+
+  Window::~Window(){}
+
+  void Window::setSize(uint32 width, uint32 height)
+  {
+    this->width = width;
+    this->height = height;
+  }
+
   void Window::registerWindowClass(HINSTANCE hinst, const wchar_t* window_class_name, WNDPROC wnd_proc)
   {
     WNDCLASSEXW window_class = {};

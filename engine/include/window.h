@@ -11,6 +11,8 @@ namespace engine
     Window(std::wstring name, uint32 width, uint32 height);
     ~Window();
 
+    void setSize(uint32 width, uint32 height);
+
     uint32 getWidth() const { return width; }
     uint32 getHeight() const { return height; }
 

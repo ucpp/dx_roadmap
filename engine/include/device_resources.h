@@ -10,6 +10,8 @@ namespace engine
   {
   public:
     void render(bool vsync, bool tearing_supported);
+    void resize(uint32 width, uint32 height);
+    void flush();
 
   public:
     static const uint8 num_frames = 3;
@@ -31,7 +33,6 @@ namespace engine
     void waitForFenceValue(ComPtr<ID3D12Fence> fence, uint64 fence_value, HANDLE fence_event, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
     void flush(ComPtr<ID3D12CommandQueue> command_queue, ComPtr<ID3D12Fence> fence, uint64& fence_value, HANDLE fence_event);
 
-    void render(bool VSync, bool tearing_supported);
     void updateRenderTargetViews(ComPtr<ID3D12Device2> device, ComPtr<IDXGISwapChain4> swap_chain, ComPtr<ID3D12DescriptorHeap> descriptor_heap);
 
   private:
