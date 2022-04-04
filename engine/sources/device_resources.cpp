@@ -2,6 +2,42 @@
 
 namespace engine
 {
+  void DeviceResources::render(bool vsync, bool tearing_supported)
+  {
+    auto command_allocator = command_allocators[current_back_buffer_index];
+    auto back_buffer = back_buffers[current_back_buffer_index];
+    command_allocator->Reset();
+    command_list->Reset(command_allocator.Get(), nullptr);
+
+    // Clear the render target.
+    {
+      CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(back_buffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+      command_list->ResourceBarrier(1, &barrier);
+
+      FLOAT clear_color[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+      CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(RTV_descriptor_heap->GetCPUDescriptorHandleForHeapStart(), current_back_buffer_index, RTV_descriptor_size);
+      command_list->ClearRenderTargetView(rtv, clear_color, 0, nullptr);
+    }
+
+    // Present
+    {
+      CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(back_buffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+      command_list->ResourceBarrier(1, &barrier);
+      ThrowIfFailed(command_list->Close());
+
+      ID3D12CommandList* const command_lists[] = { command_list.Get() };
+      command_queue->ExecuteCommandLists(_countof(command_lists), command_lists);
+      frame_fence_values[current_back_buffer_index] = signal(command_queue, fence, fence_value);
+
+      UINT sync_interval = vsync ? 1 : 0;
+      UINT present_flags = tearing_supported && !vsync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+      ThrowIfFailed(swap_chain->Present(sync_interval, present_flags));
+
+      current_back_buffer_index = swap_chain->GetCurrentBackBufferIndex();
+      waitForFenceValue(fence, frame_fence_values[current_back_buffer_index], fence_event);
+    }
+  }
+
   void DeviceResources::enableDebugLayer()
   {
 #if defined(_DEBUG)
