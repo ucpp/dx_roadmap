@@ -19,6 +19,39 @@ namespace engine
     this->height = height;
   }
 
+  void Window::setFullscreen(bool fullscreen)
+  {
+    if (this->fullscreen != fullscreen)
+    {
+      this->fullscreen = fullscreen;
+
+      if (this->fullscreen)
+      {
+        ::GetWindowRect(hwnd, &window_rect);
+        uint32 window_style = WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+        ::SetWindowLongW(hwnd, GWL_STYLE, window_style);
+
+        HMONITOR monitor = ::MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+        MONITORINFOEX monitor_info = {};
+        monitor_info.cbSize = sizeof(MONITORINFOEX);
+        ::GetMonitorInfo(monitor, &monitor_info);
+
+        ::SetWindowPos(hwnd, HWND_TOPMOST, monitor_info.rcMonitor.left, monitor_info.rcMonitor.top, monitor_info.rcMonitor.right - monitor_info.rcMonitor.left,
+          monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top, SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+        ::ShowWindow(hwnd, SW_MAXIMIZE);
+      }
+      else
+      {
+        // Restore all the window decorators.
+        ::SetWindowLong(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+        ::SetWindowPos(hwnd, HWND_NOTOPMOST, window_rect.left, window_rect.top, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top,
+          SWP_FRAMECHANGED | SWP_NOACTIVATE);
+        ::ShowWindow(hwnd, SW_NORMAL);
+      }
+    }
+  }
+
   void Window::registerWindowClass(HINSTANCE hinst, const wchar_t* window_class_name, WNDPROC wnd_proc)
   {
     WNDCLASSEXW window_class = {};
