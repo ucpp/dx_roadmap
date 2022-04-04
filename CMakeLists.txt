@@ -9,6 +9,12 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib) # Output directory f
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # Output directory for shared lib (.DLL)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # Output directory for executables (.EXE)
 
+file(REMOVE_RECURSE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/)
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/demo/resources/ DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/demo/resources/config.json ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/ COPYONLY)
+
 option(BUILD_DEMO "Build demo" ON)
 
 add_subdirectory(engine)
