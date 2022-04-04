@@ -6,12 +6,27 @@ namespace engine
     : title(name)
     , width(width)
     , height(height)
-    , use_wrap(false)
+    , use_warp(false)
     , fullscreen(false)
     , window_rect()
-    , hwnd(nullptr) {}
+    , hwnd(nullptr)
+    , cmd_show(0) {}
 
   Window::~Window(){}
+
+  void Window::initialize(Application* application, HINSTANCE instance, WNDPROC wnd_proc, int cmd_show)
+  {
+    this->cmd_show = cmd_show;
+    const wchar_t* window_class_name = L"DX12WindowClass";
+    registerWindowClass(instance, window_class_name, wnd_proc);
+    hwnd = createWindow(window_class_name, instance, title.c_str(), width, height, application);
+    ::GetWindowRect(hwnd, &window_rect);
+  }
+
+  void Window::show()
+  {
+    ::ShowWindow(hwnd, cmd_show);
+  }
 
   void Window::setSize(uint32 width, uint32 height)
   {

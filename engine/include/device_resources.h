@@ -9,16 +9,20 @@ namespace engine
   class DeviceResources
   {
   public:
+    void loadPipeline(const class Window& window);
     void render(bool vsync, bool tearing_supported);
     void resize(uint32 width, uint32 height);
     void flush();
+
+    bool checkTearingSupport();
+
+    inline HANDLE getFenceEvent() const { return fence_event; }
 
   public:
     static const uint8 num_frames = 3;
 
   private:
     void enableDebugLayer();
-    bool checkTearingSupport();
     ComPtr<IDXGIAdapter4> getAdapter(bool use_warp);
     ComPtr<ID3D12Device2> createDevice(ComPtr<IDXGIAdapter4> adapter);
     ComPtr<ID3D12CommandQueue> createCommandQueue(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type);

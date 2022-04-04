@@ -8,7 +8,7 @@ int CALLBACK wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE h_prev_instanc
     const std::string path = "resources/config.json";
     engine::Log::info("Start demo with config: %s\n", path.c_str());
 
-    engine::Application application(path);
+    engine::Application application(path, instance, cmd_show);
     application.run();
   }
   catch (const std::exception& ex)

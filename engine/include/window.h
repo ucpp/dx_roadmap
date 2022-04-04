@@ -11,11 +11,15 @@ namespace engine
     Window(std::wstring name, uint32 width, uint32 height);
     ~Window();
 
+    void initialize(Application* application, HINSTANCE instance, WNDPROC wnd_proc, int cmd_show);
     void setSize(uint32 width, uint32 height);
     void setFullscreen(bool fullscreen);
+    void show();
 
     uint32 getWidth() const { return width; }
     uint32 getHeight() const { return height; }
+    bool getUseWarp() const { return use_warp; }
+    HWND getHwnd() const { return hwnd; }
 
   private:
     void registerWindowClass(HINSTANCE hinst, const wchar_t* window_class_name, WNDPROC wnd_proc);
@@ -25,8 +29,9 @@ namespace engine
     uint32 width;
     uint32 height;
 
-    bool use_wrap;
+    bool use_warp;
     bool fullscreen;
+    int cmd_show;
     std::wstring title;
 
     HWND hwnd;

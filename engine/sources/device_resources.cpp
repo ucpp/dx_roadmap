@@ -1,7 +1,34 @@
 #include <device_resources.h>
+#include <window.h>
 
 namespace engine
 {
+  void DeviceResources::loadPipeline(const Window& window)
+  {
+    ComPtr<IDXGIAdapter4> dxgi_adapter4 = getAdapter(window.getUseWarp());
+    device = createDevice(dxgi_adapter4);
+    command_queue = createCommandQueue(device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+    swap_chain = createSwapChain(window.getHwnd(), command_queue, window.getWidth(), window.getHeight(), num_frames);
+    current_back_buffer_index = swap_chain->GetCurrentBackBufferIndex();
+
+    RTV_descriptor_heap = createDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, num_frames);
+    RTV_descriptor_size = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+    updateRenderTargetViews(device, swap_chain, RTV_descriptor_heap);
+
+    for (int frame = 0; frame < num_frames; ++frame)
+    {
+      command_allocators[frame] = createCommandAllocator(device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    }
+    command_list = createCommandList(device, command_allocators[current_back_buffer_index], D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+    fence = createFence(device);
+    fence_event = createEventHandle();
+
+    is_initialized = true;
+  }
+
   void DeviceResources::render(bool vsync, bool tearing_supported)
   {
     auto command_allocator = command_allocators[current_back_buffer_index];
